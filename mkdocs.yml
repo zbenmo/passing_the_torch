@@ -1,0 +1,44 @@
+site_name: Passing the Torch
+theme:
+  name: material
+  palette:
+    primary: teal
+    accent: yellow
+  font:
+    text: Ubuntu
+  icon:
+    logo: material/chess-knight
+  favicon: images/humans_thoughts.png
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - attr_list
+  # - pymdownx.emoji:
+  #     emoji_index: !!python/name:materialx.emoji.twemoji
+  #     emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex
+extra_javascript:
+  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
+nav:
+  - index.md
+  - pytorch_vs_numpy.md
+  # - part_I.md
+  # - part_II_np.md
+  # - part_III.md
+  # - part_IV.md
+  # - part_V_OO.md
+  # - part_VI_various.md
+  # - part_VII_pd.md
+  # - part_VIII_ecosystem_and_packaging.md
+  # - part_IX_flask.md
+  # - part_X_pytest_black_flake8.md
