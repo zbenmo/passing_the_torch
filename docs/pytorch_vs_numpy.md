@@ -8,7 +8,7 @@ import torch
 
 
 # first entry age in years, second entry height in centimeters
-person_details = torch.tensor([18.0, 172.4])
+person_details = torch.tensor([18, 172.4])
 
 person_details
 ```
@@ -28,9 +28,9 @@ So a vector is tensor with one dimention. To continue with above example, we can
 
 # first entry age in years, second entry height in centimeters
 subjects_details = torch.tensor([
-    [18.0, 172.4],
-    [51.0, 169.2],
-    [46.0, 164.5],
+    [18, 172.4],
+    [51, 169.2],
+    [46, 164.5],
 ])
 
 subjects_details
@@ -60,9 +60,9 @@ $$
 # first entry age in years, second entry height in centimeters,
 # and just added the mass in kilograms.
 subjects_details = torch.tensor([
-    [18.0, 172.4, 62.1],
-    [51.0, 169.2, 66.0],
-    [46.0, 164.5, 72.0],
+    [18, 172.4, 62.1],
+    [51, 169.2, 66.0],
+    [46, 164.5, 72.0],
 ])
 
 subjects_BMI = (
@@ -80,3 +80,282 @@ If I read the results correct, then the third person is a bit overweight.
 A side note. Is NumPy obsolete? Can we forget about NumPy, or never bother to learn it if did not play with it yet?
 My answer will be that at the moment it is still around and is well supported and integrated by and with many packages. Also I believe it is a dependancy of PyTorch (probably not making use of NumPy, yet as of back-and-forward conversions.). It is very easy to initialize a PyTorch tensor from a NumPy array and vice versa. So keep learning PyTorch, and use NumPy if and where needed.
 
+It is a good practice to verify the type of a Python object, when in doubt.
+
+``` py
+type(subjects_details)
+```
+
+```torch.Tensor```
+
+To get a bit more information with tensors, use also the following:
+
+``` py
+subjects_details.type()
+```
+
+```'torch.FloatTensor'```
+
+``` py
+subjects_details.dtype
+```
+
+```torch.float32``` (the elements are all of torch.float32 type)
+
+``` py
+subjects_details.shape
+```
+
+```torch.Size([3, 3])``` (3 rows and 3 columns right after we've added also the mass)
+
+Tensors are very useful also to represent images.
+
+``` py
+..
+img = torch.tensor([
+    [0, 1, 1, 0],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [0, 1, 1, 0],
+])
+
+img
+```
+
+```
+tensor([[0, 1, 1, 0],
+        [1, 0, 0, 1],
+        [1, 0, 0, 1],
+        [0, 1, 1, 0]])
+```
+
+``` py
+img.type()
+```
+
+```'torch.LongTensor'```
+
+Above the implementation of ```torch.tensor``` noted that all the entries are integers and so we got a ```LongTensor```.  
+If you want to have floats in the first place, use ```tensor.Tensor``` instead:
+
+``` py
+img = torch.Tensor([
+    [0, 1, 1, 0],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [0, 1, 1, 0],
+])
+
+img
+```
+
+```
+tensor([[0., 1., 1., 0.],
+        [1., 0., 0., 1.],
+        [1., 0., 0., 1.],
+        [0., 1., 1., 0.]])
+```
+
+Alternatively you can convert an existing tensor to another type, by a match operation, or explicitly using ```to```:
+
+```py
+img = torch.tensor([
+    [0, 1, 1, 0],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [0, 1, 1, 0],
+])
+
+img.to(torch.float32)
+```
+
+```
+tensor([[0., 1., 1., 0.],
+        [1., 0., 0., 1.],
+        [1., 0., 0., 1.],
+        [0., 1., 1., 0.]])
+```
+
+Images often have multiple channels (ex. RGB). With PyTorch the channel should often come before the height and the width, so if you happen to have HWC and you want to "change" it into CHW, you can do the following:
+
+``` py
+img = ... # a tensor representing an image, given in HWC format.
+img = img.permute([2, 0, 1]) # let's have it in CHW format.
+```
+
+To verify above snippet of code, I've ended up creating first CHW image and then converting it to HWC (just to convert it back):
+
+``` py
+chw_img = img.unsqueeze(0).repeat(3, 1, 1)
+chw_img
+```
+
+*unsqeeuze* adds a dimention. *repeat* in this example "inflates" it from B/W to RGB (three channels).
+
+```
+tensor([[[0, 1, 1, 0],
+         [1, 0, 0, 1],
+         [1, 0, 0, 1],
+         [0, 1, 1, 0]],
+
+        [[0, 1, 1, 0],
+         [1, 0, 0, 1],
+         [1, 0, 0, 1],
+         [0, 1, 1, 0]],
+
+        [[0, 1, 1, 0],
+         [1, 0, 0, 1],
+         [1, 0, 0, 1],
+         [0, 1, 1, 0]]])
+```
+
+``` py
+chw_img[1] *= 2
+chw_img[2] *= 3
+chw_img
+```
+
+```
+tensor([[[0, 1, 1, 0],
+         [1, 0, 0, 1],
+         [1, 0, 0, 1],
+         [0, 1, 1, 0]],
+
+        [[0, 2, 2, 0],
+         [2, 0, 0, 2],
+         [2, 0, 0, 2],
+         [0, 2, 2, 0]],
+
+        [[0, 3, 3, 0],
+         [3, 0, 0, 3],
+         [3, 0, 0, 3],
+         [0, 3, 3, 0]]])
+```
+
+Lastly let's show what we wanted, so if the channel is the last dimension HWC:
+
+``` py
+hwc_img = chw_img.permute(1, 2, 0)
+hwc_img[:, :, 2]
+```
+
+```
+tensor([[0, 3, 3, 0],
+        [3, 0, 0, 3],
+        [3, 0, 0, 3],
+        [0, 3, 3, 0]])
+```
+
+Above demonstrates what the third channel (Blue?) looks like.
+Now we can change the channel to be in the first dimension (as usually is assumed with PyTorch).
+
+``` py
+hwc_img.permute(2, 0, 1)
+```
+
+```
+tensor([[[0, 1, 1, 0],
+         [1, 0, 0, 1],
+         [1, 0, 0, 1],
+         [0, 1, 1, 0]],
+
+        [[0, 2, 2, 0],
+         [2, 0, 0, 2],
+         [2, 0, 0, 2],
+         [0, 2, 2, 0]],
+
+        [[0, 3, 3, 0],
+         [3, 0, 0, 3],
+         [3, 0, 0, 3],
+         [0, 3, 3, 0]]])
+```
+
+It is usually a good practice to operate on tensors and get new tensors as a result. This is more "functional" in the sense that code and functions that we run do not have side effects on the inputs, and shall return the same results (subject to implicit randomness), if called again with the same inputs.
+If we do need to save space, we can opt in to "in place" operations.
+
+A very useful functionality of tensor is *reshape*. Imagine a 2d image. Its pixels' values may be stored on disk in a sequential mannner. When we load the image, we are starting with a 1d-tensor. Then maybe we want to process the image with its "georgaphy" in mind (cropping for example).
+
+``` py
+img_vec = torch.arange(9)
+print(img_vec.shape)
+img_mat = img_vec.reshape(-1, 3)
+print(img_mat.shape)
+```
+
+```
+torch.Size([9])
+torch.Size([3, 3])
+```
+
+Above we've suggested that there are 3 columns, and let PyTorch do the math regarding the rows (this was the -1).
+
+``` py
+img_mat
+```
+
+```
+tensor([[0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8]])
+```
+
+When makes sense, PyTorch attempts to avoid moving memory from place to place, but rather only keep "management" information regarding the shape. This however means that there is only one "place":
+
+``` py
+img_mat[-1, -1] = 88
+img_vec
+```
+
+```
+tensor([ 0,  1,  2,  3,  4,  5,  6,  7, 88])
+```
+
+We've seen above element wise operations, for example when we've computed BMI. PyTorch, as does NumPy, supports also linear algebra style vector and higher-order tensors operations, such as multiplication.
+
+``` py
+tensor1 = torch.randn(3)
+tensor2 = torch.randn(3)
+res = torch.matmul(tensor1, tensor2)
+print(res)
+print(res.size())
+print(res.item())
+```
+
+```
+tensor(-1.0853)
+torch.Size([])
+-1.0853235721588135
+```
+
+We got above a 0-dimensions tensor (a scalar). In order to take the single value out of the tensor,
+we've used *.item()*.
+
+## Support for GPU
+
+Tensors can be allocated on the GPU's memory, if you have such. Relevant operations on the tensors will run there (on the GPU), often faster. Operations between tensors need to be done when both tensors are located on the same *device*. If you detect that you have a GPU, and you train a model, putting the parameters of the model on the GPU, the training and evaluation data, should also be at the time on the GPU. Data is often loaded from the disk into the main memory, and then mini-batches are copied to the GPU's memory, used for an iteration, and make space for the next mini-batches, that are waiting either in memory or still on the disk. NumPy as far as I know does not have support for GPU. There is another NumPy like package called Numba, that apparently does support GPU. I haven't played with Numba yet.
+
+``` py
+torch.cuda.is_available()
+```
+
+```
+True
+```
+
+Above was shown on [Colab](https://colab.research.google.com/). If like me you don't have GPU in your private environment, consider using Colab.
+
+``` py
+tensor1 = torch.randn(3)
+tensor1.device
+```
+
+```device(type='cpu')```
+
+``` py
+tensor1_cuda = tensor1.to("cuda")
+tensor1_cuda.device
+```
+
+```device(type='cuda', index=0)```
+
+There is more to PyTorch of course, and also related to tensors. We'll talk about *auto grad* next.
