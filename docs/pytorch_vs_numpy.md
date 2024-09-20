@@ -330,6 +330,55 @@ torch.Size([])
 We got above a 0-dimensions tensor (a scalar). In order to take the single value out of the tensor,
 we've used *.item()*.
 
+## Broadcasting
+
+When we need element-wise operations, such as addition, the tensors are supposed to be of the same size, that is same dimensios, and same number of elements at each dimension. But we've already seen a division by scalar, which means that every element is diveded by the same scalar, or you can also think of it that a conceptual tensor is created, and the scalar is broadcasts to all elements of the new tensor, and then we have the element-wise division. Broadcasting is even more general. If you have two tensors, with different sizes, it can still work, if it is possible to "understand" what is meant; starting from the last dimension, if it is equal among the tensors, we move to the next one. If one of the dimentions is 1, then we assume all entries of the conceptual tensor are the same. If we ran out of dimension in one tensor, we can assume we have there 1 as above.
+
+Here are some examples that should work:
+
+```
+[3, 4, 5] and [3, 1, 5]
+[1, 2, 2] and [2, 2, 2]
+[2, 2] and [2, 2, 2]
+```
+
+And here are some examples that should probably don't work:
+
+```
+[3, 3] and [3, 6]
+[2, 2] and [3, 2]
+```
+
+If we did not have the support of broadcasting, we could have just do as above with *unsqueeze*, *squeeze*, *repeat*, etc. However it makes our life a bit easier, and potentially saves memory and computations.
+
+``` py
+img = torch.tensor([
+    [0, 1, 1, 0],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [0, 1, 1, 0],
+])
+
+img * torch.tensor([[[1]], [[2]], [[3]]]) # [4, 4] and [3, 1, 1]
+```
+
+```
+tensor([[[0, 1, 1, 0],
+         [1, 0, 0, 1],
+         [1, 0, 0, 1],
+         [0, 1, 1, 0]],
+
+        [[0, 2, 2, 0],
+         [2, 0, 0, 2],
+         [2, 0, 0, 2],
+         [0, 2, 2, 0]],
+
+        [[0, 3, 3, 0],
+         [3, 0, 0, 3],
+         [3, 0, 0, 3],
+         [0, 3, 3, 0]]])
+```
+
 ## Support for GPU
 
 Tensors can be allocated on the GPU's memory, if you have such. Relevant operations on the tensors will run there (on the GPU), often faster. Operations between tensors need to be done when both tensors are located on the same *device*. If you detect that you have a GPU, and you train a model, putting the parameters of the model on the GPU, the training and evaluation data, should also be at the time on the GPU. Data is often loaded from the disk into the main memory, and then mini-batches are copied to the GPU's memory, used for an iteration, and make space for the next mini-batches, that are waiting either in memory or still on the disk. NumPy as far as I know does not have support for GPU. There is another NumPy like package called Numba, that apparently does support GPU. I haven't played with Numba yet.
@@ -357,5 +406,28 @@ tensor1_cuda.device
 ```
 
 ```device(type='cuda', index=0)```
+
+Just to iterate, operations between tensors that are located on different devices, are not supposed to work:
+
+``` py
+...
+
+tensor1 = torch.randn(3)
+tensor2 = torch.randn(3).to("cuda")
+tensor1 + tensor2
+```
+
+```
+---------------------------------------------------------------------------
+RuntimeError                              Traceback (most recent call last)
+<ipython-input-2-5076b2d4339c> in <cell line: 3>()
+      1 tensor1 = torch.randn(3)
+      2 tensor2 = torch.randn(3).to("cuda")
+----> 3 tensor1 + tensor2
+
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!
+```
+
+If you do want to add as an example two tensors that are on different device, you need first to move one of them to the same device where the other is. Remember that the GPU is fast, while the CPU (the relevant memory) is potentially bigger, but also when needed, backed by even larger space transparently (the operating system's virtual memory and the disk). 
 
 There is more to PyTorch of course, and also related to tensors. We'll talk about *auto grad* next.
