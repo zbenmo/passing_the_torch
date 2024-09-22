@@ -32,6 +32,7 @@ extra_javascript:
 nav:
   - index.md
   - pytorch_vs_numpy.md
+  - autograd.md
   # - part_I.md
   # - part_II_np.md
   # - part_III.md

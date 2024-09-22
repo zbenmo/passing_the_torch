@@ -1,6 +1,6 @@
 # PyTorch as a Linear-Algebra support package
 
-Pytorch provides utilities to manipulate numbers with linear-algebra style logic and operations.
+PyTorch provides utilities to manipulate numbers with linear-algebra style logic and operations.
 A data point with two values, for example *age* and *height*, can be represented by a vector with two items, where the first entry is the age, and the second entry is the height.
 
 ``` py
@@ -19,7 +19,7 @@ Why not a *dataclass* (or just a Python *class*)? Why not a Python *dict*?
 It is still a good practice to use more structured data types in your program and databases. At one stage to communicate the data to machine learning; linear models, neural networks, etc., we shall need probably to work with this kind of representation, meaning vectors, matrices, and higher dimensions tensors, with all entries of the same (numeric) type.
 
 If you are familiar with *DataFrames* from *Pandas*, *Polars*, or *Spark*, or if you have already used tabular data with ML libraries such as *Scikit-Learn*, this seems to be a step backwards.
-Yet think of streams of images from cameras (a video or so), embedding for variable-length texts, sound, the feed from sensors, etc. For more flexibility with the inputs and the outputs, getting used to tensor representation will help us with addressing those challenges. We'll need to find the right combination of "human facing" representation and "neural network facing" representation, and where to do the back and forward translation.    
+Yet think of streams of images from cameras (a video or so), embedding for variable-length texts, sound, the feed from sensors, etc. For more flexibility with the inputs and the outputs, getting used to tensor representation will help us with addressing those challenges. We'll need to find the right combination of "human facing" abstractions and "neural network facing" representation, and where to do the back and forward translations.    
 
 So a vector is tensor with one dimention. To continue with above example, we can have the details for more than one person, in a matrix. Each row will represent another person (another data point.).
 
@@ -310,6 +310,9 @@ img_vec
 tensor([ 0,  1,  2,  3,  4,  5,  6,  7, 88])
 ```
 
+You may see in places the usage of *.view()* which is like *.reshape()* yet may fail when the memory is not continous.
+So if you want to make sure the memory is continous, use *.view()*, if you want it just to work, use *.reshape()*.
+
 We've seen above element wise operations, for example when we've computed BMI. PyTorch, as does NumPy, supports also linear algebra style vector and higher-order tensors operations, such as multiplication.
 
 ``` py
@@ -329,6 +332,8 @@ torch.Size([])
 
 We got above a 0-dimensions tensor (a scalar). In order to take the single value out of the tensor,
 we've used *.item()*.
+
+Note that the mathematical rules dictate the the dimensions in above example should have been [1, 3] and [3, 1], yet *.matmul* figures out what we want to do there.
 
 ## Broadcasting
 

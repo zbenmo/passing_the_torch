@@ -3,3 +3,6 @@ mkdocs-material
 python-markdown-math
 torch
 jupyterlab
+numpy
+tensorboard
+torchviz
