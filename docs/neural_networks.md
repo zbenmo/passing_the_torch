@@ -82,12 +82,14 @@ Note that the tensors where defined as ones that require *autograd*. This means 
 
 With tensorboard, I got the following diagram:
 
-```py
+``` py
+# make sure first to "pip install tensorboard"
 from torch.utils.tensorboard import SummaryWriter
 
 writer = SummaryWriter()
 writer.add_graph(model, torch.rand(5))
 writer.close()
+# now open tensorboard --logdirs=runs and check for the graph of the latest run
 ```
 
 <figure style="width:60%">
@@ -253,6 +255,6 @@ model = MyModel()
 ```
 
 <figure style="width:60%">
-    <img src="../images/Sequential.png" title="Sequential"/>
-    <figcaption>Sequential</figcaption>
+    <img src="../images/Sequential.png" title="Graph of our model where Sequential is used"/>
+    <figcaption>Sequential (as shown on tensorboard if you add the graph of the model)</figcaption>
 </figure>

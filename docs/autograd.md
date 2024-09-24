@@ -130,3 +130,40 @@ for epoch in range(num_epochs):
 
 print("Finished Training")
 ```
+
+One needs to be a little aware when a calculation is part of a graph, and will result in the addition calculation of the gradients. There are a few reasons.
+Sometimes we're not training the model, but just making a use of its prediction capabilities (calculating gradients will waste resources).
+In other times we need to be aware that our calculation is outside the control of PyTorch autograd, for example, if we move stuff around for NumPy or using some external functionality / API.
+There are situations where we deliberty want some of the calculations to use autograd, while other not to.  
+I bring here some related constructs, without giving the full context, yet we'll probably meet those constructs again later.
+
+``` py
+# Disable autograd
+with torch.no_grad(): # context manager
+    output = model(data)
+```
+
+``` py
+torch.autograd.set_grad_enabled(False)
+# Your code here
+torch.autograd.set_grad_enabled(True)
+```
+
+``` py
+import torch
+
+# Create a tensor with gradient tracking enabled
+x = torch.randn(3, requires_grad=True)
+
+# Perform some operations
+y = x ** 2
+
+# Detach the tensor from the computation graph and convert to NumPy
+numpy_array = y.detach().numpy()
+
+print(numpy_array) # or maybe use matplotlib etc.
+# Not all plot's calculations should go all the way to to 'x' etc.
+```
+
+We can also disable the ```requires_grad``` for all, or some of, the relevant parameters of a model (the model's tensors).
+(will be shown elsewhere).

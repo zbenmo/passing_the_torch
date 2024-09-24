@@ -2,13 +2,13 @@ site_name: Passing the Torch
 theme:
   name: material
   palette:
-    primary: teal
-    accent: yellow
+    # primary: success.main
+    # accent: white
   font:
     text: Ubuntu
   icon:
-    logo: material/chess-knight
-  favicon: images/humans_thoughts.png
+    logo: material/torch
+  favicon: images/torch.png
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -29,6 +29,8 @@ markdown_extensions:
   - pymdownx.arithmatex
 extra_javascript:
   - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
+extra_css:
+  - stylesheets/extra.css
 nav:
   - index.md
   - pytorch_vs_numpy.md
