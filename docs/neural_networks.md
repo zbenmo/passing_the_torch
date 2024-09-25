@@ -146,7 +146,7 @@ list(model.parameters())
  tensor([0.2331], requires_grad=True)]
 ```
 
-Values above may differ as I ran in in another opportunity.  
+Values above may differ as I ran the snippet in another opportunity.  
 The ability to have the ```state_dict``` of a model will help us when we want to save a copy of a model on disk. If we fail to save the parameters, we'll need to train and verify each time we need such a model. The real value of a model is one that was trained and gave us good results on unseen dataset.  
 ```parameters``` will be useful for us when we want to select what parameters to train / fine-tune.
 
@@ -232,7 +232,7 @@ OrderedDict([('layers.0.weight',
              ('layers.1.bias', tensor([0.0450]))])
 ```
 
-One can also use ```nn.Sequential``` which included also the cascading loop.
+One can also use ```nn.Sequential``` which includes also the cascading loop.
 
 ```
 class MyModel(nn.Module):

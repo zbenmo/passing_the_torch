@@ -6,3 +6,5 @@ jupyterlab
 numpy
 tensorboard
 torchviz
+torchvision
+matplotlib
