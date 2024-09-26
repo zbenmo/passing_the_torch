@@ -12,6 +12,8 @@
         <link rel="prev" href="../autograd/">
       
       
+        <link rel="next" href="../training/">
+      
       
       <link rel="icon" href="../images/torch.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.35">
@@ -274,6 +276,26 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../training/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Training
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -421,7 +443,7 @@ The output in the first case is <code>torch.Size([1])</code> and in the mini-bat
 </span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a> Parameter containing:
 </span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a> tensor([0.2331], requires_grad=True)]
 </span></code></pre></div>
-<p>Values above may differ as I ran in in another opportunity.<br />
+<p>Values above may differ as I ran the snippet in another opportunity.<br />
 The ability to have the <code>state_dict</code> of a model will help us when we want to save a copy of a model on disk. If we fail to save the parameters, we'll need to train and verify each time we need such a model. The real value of a model is one that was trained and gave us good results on unseen dataset.<br />
 <code>parameters</code> will be useful for us when we want to select what parameters to train / fine-tune.</p>
 <p>Please note that a <code>nn.Module</code> is aware only of other <code>`nn.Module</code> that is an attribute of the object. Not sure how this wonderful capability was achieved in the first place, yet we do need to be aware of it. Let's try the following:</p>
@@ -493,7 +515,7 @@ The ability to have the <code>state_dict</code> of a model will help us when we 
 </span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>                       -0.1903, -0.2391]])),
 </span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>             (&#39;layers.1.bias&#39;, tensor([0.0450]))])
 </span></code></pre></div>
-<p>One can also use <code>nn.Sequential</code> which included also the cascading loop.</p>
+<p>One can also use <code>nn.Sequential</code> which includes also the cascading loop.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>class MyModel(nn.Module):
 </span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    def __init__(self, num_layers=3):
 </span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>        super(MyModel, self).__init__()
