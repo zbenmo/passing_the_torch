@@ -37,4 +37,6 @@ nav:
   - autograd.md
   - neural_networks.md
   - training.md
+  - embeddings.md
+
   

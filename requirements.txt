@@ -8,3 +8,6 @@ tensorboard
 torchviz
 torchvision
 matplotlib
+transformers
+tqdm
+pandas
