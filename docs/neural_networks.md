@@ -40,8 +40,8 @@ tensor([0.0552], grad_fn=<TanhBackward0>)
 torch.Size([1])
 ```
 
-Above, we've derived a new class from *nn.Module*. Out NN model is a *nn.Module*. We'll have a couple of attributes to each instance, that is in the example *fc1* and *fc2*. In the constructor, those are just created and saved for later. *nn.Linear* is basicly two tensors. In the example of *fc1*, one of size [5, 10] and the other of size [5, 1] (bias).
-The operation implied by *nn.Linear* is basically *matmul* bewteen the input and the first tensor we then add the bias tensor. *fc* stands for "fully connected", this name is used often for *nn.Linear*. The internal modules are the "layers" of the neural network.
+Above, we've derived a new class from *nn.Module*. Our NN model is a *nn.Module*. We'll have a couple of attributes to each instance, that is in the example *fc1* and *fc2*. In the constructor, those are just created and saved for later. *nn.Linear* is basicly two tensors. In the example of *fc1*, one of size [10, 5] and the other of size [10] (bias).
+The operation implied by *nn.Linear* is basically *matmul* bewteen the first tensor and the input we then add the bias tensor. *fc* stands for "fully connected", this name is used often for *nn.Linear*. The internal modules are the "layers" of the neural network.
 
 ``` py
 model.fc1.state_dict()
@@ -73,13 +73,23 @@ isinstance(model.fc1, nn.Module)
 
 It is nice that we compose *nn.Module* of other modules, as we can define custom "building blocks" and use them later as part of a NN model (imagine you want to repeat a construct a few times). It makes everything more "modular".
 
-In *forward* we make use of the internal *layers* on the module. We pass the input throught them and let them do their calculations. In the example above we broke the linearity between *fc1* and *fc2* using *tanh*. *tanh* does not have parameters, and so we did not need to allocate attributes in the constructor, but rather using it from *torch.nn.functional*, which is a collection of functions.
+In *forward* we make use of the internal *layers* on the module. We pass the input throught them and let them do their calculations. In the example above we broke the linearity between *fc1* and *fc2* using *tanh*. *tanh* does not have parameters, and so we did not need to allocate attributes in the constructor, but rather using it from *torch.nn.functional*, which is a collection of functions. Another name for those non-linearity functions is *activation functions*.
 
 Note that when we use the model above ```out = model(torch.rand(5))```, we've "called" the model which in turns calls *forward*. We passed a single input, this was the expected input, a vector of 5 elements. We can also pass a mini-batch of inputs ```out = model(torch.rand(5).unsqueeze(0))```.
 The output in the first case is ```torch.Size([1])``` and in the mini-batch one is ```torch.Size([1, 1])```. I think we've have single element / mini-batch for free as of the broadcast capabilities of tensors. One can also have a mini-batch of mini-batches (if makes sense) etc.
 
 Note that the tensors where defined as ones that require *autograd*. This means that when we use the result of the network, potentially calculating the loss from the result and some desired output, we can *backward* the gradient to all relevant calculations that were used for the loss and internally in the *forward* implementation.
 
+Printing the model will yield something as follows.
+
+```
+MyModel(
+  (fc1): Linear(in_features=5, out_features=10, bias=True)
+  (fc2): Linear(in_features=10, out_features=1, bias=True)
+)
+```
+
+Note that the graph is aware of the names of the attributes as we named them in the initialization.  
 With tensorboard, I got the following diagram:
 
 ``` py

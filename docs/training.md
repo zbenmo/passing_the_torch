@@ -143,7 +143,7 @@ Above example we have made a usage of a sample dataset found in the useful Pytho
 We did not access the datasets directly but rather used a utility class ```DataLoader``` that allows us to define the batch (mini-batch) size, as well as wheater we want to shuffle the entries first. Shuffeling may be beneficial for the training, but is not important for the test.  
 Out of the 64 images that we get in the first mini-batch, we show above the first 5x5 images (and their supervised labels).
 
-One often defines there own dataset.
+One often defines their own dataset.
 
 ``` py
 class CustomImageDataset(Dataset):
@@ -191,6 +191,8 @@ for images, labels in dataloader:
 
 The class in this case implements ```___len__()``` and ```__getitem__(idx)```. It allows, for example to a DataLoader, to direct access the entries, and so to shuffle the indices before accessing. Note that while the whole CSV file is loaded there in the constructor (for the labels and paths), only when an image is requested it is loaded. This way we can work with a large dataset of images, without running out of memory. The data-loader has support for multiple workers, so calls to ```__getitem__``` can be called in parallel to speed up things. A data-loader can potentially also make calls to ```__getitem__``` before we ask it for the next mini-batch (to pre-fetch).  
 Looping over the mini-batches is done in the CPU's memory, and we can then move the tensors to the actual device (be it "cuda" for example.). It is usually expected that datasets return a tensor (or a tuple of tensors) from a call to ```__get__``` (those tensors are usually in the CPU's memory, till copied implicitly by our code that follows).
+
+When you want to use the same dataset class for training (when you have also the labels), and for inference (when you only have the features), a common approach is to return from ```__getitem__``` ```(x, target)``` when ```self.target_exists``` for example, while returning only ```x``` otherwise. During the initialization you can decide of the value of ```self.target_exists``` for example.
 
 ## Optimizers
 
@@ -299,3 +301,74 @@ Epoch 5/5, Training Loss: 0.0562, Validation Loss: 0.0956, Validation Accuracy: 
 Above should make sense by now.  
 A couple of observations. On line 40 we see ```model.train()``` and on line 51 we see ```model.eval()```. For some models, this has no effect and the models will work perfectly fine if we don't include those calls. There are however some modules (layers), that behave differently during training and evaluation (should behave so). So to be on the safe side, it is a good idea to call ```model.train()``` just before a training loop, and to call ```model.eval()``` when doing an evaluation. Why do we need evaluation interleaved in the training loop? Training a neural network is a long process (time-wise and money-wise when we are paying for the hardware by the hour). We should better see that something is moving in the right direction, or else that some weird things happen, as soon as possible.  
 A second thing to notice, is that for the evaluation, we can save compute resources by working inside ```with torch.no_grad()``` context manager.
+
+Below is an example that includes also the reference to the *device* (in case we have a GPU available).
+
+``` py
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torchvision import datasets, transforms
+
+
+# Check if GPU is available
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+# Define a simple neural network
+class SimpleNN(nn.Module):
+    def __init__(self):
+        super(SimpleNN, self).__init__()
+        self.fc1 = nn.Linear(28 * 28, 128)
+        self.fc2 = nn.Linear(128, 10)
+
+    def forward(self, x):
+        x = x.view(-1, 28 * 28)
+        x = torch.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+
+# Load dataset
+transform = transforms.Compose(
+    [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
+)
+train_dataset = datasets.MNIST(
+    root='./data',
+    train=True,
+    download=True,
+    transform=transform
+)
+train_loader = torch.utils.data.DataLoader(
+    dataset=train_dataset,
+    batch_size=64,
+    shuffle=True
+)
+
+# Initialize the model, loss function, and optimizer
+model = SimpleNN().to(device)
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# Training loop
+num_epochs = 5
+for epoch in range(num_epochs):
+    for batch_idx, (data, target) in enumerate(train_loader):
+        data, target = data.to(device), target.to(device)
+
+        # Forward pass
+        outputs = model(data)
+        loss = criterion(outputs, target)
+
+        # Backward pass and optimization
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        if (batch_idx + 1) % 100 == 0:
+            print(f'''Epoch [{epoch + 1}/{num_epochs}],
+Step [{batch_idx + 1}/{len(train_loader)}],
+Loss: {loss.item():.4f}''')
+
+print("Training complete!")
+```
