@@ -345,6 +345,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#saving-and-loading-a-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saving and loading a model
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -421,6 +430,15 @@
   <a href="#putting-it-together-a-training-loop" class="md-nav__link">
     <span class="md-ellipsis">
       Putting it together - a training loop
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#saving-and-loading-a-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saving and loading a model
     </span>
   </a>
   
@@ -850,6 +868,31 @@ A second thing to notice, is that for the evaluation, we can save compute resour
 </span><span id="__span-8-65"><a id="__codelineno-8-65" name="__codelineno-8-65" href="#__codelineno-8-65"></a>
 </span><span id="__span-8-66"><a id="__codelineno-8-66" name="__codelineno-8-66" href="#__codelineno-8-66"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training complete!&quot;</span><span class="p">)</span>
 </span></code></pre></div>
+<h2 id="saving-and-loading-a-model">Saving and loading a model</h2>
+<p>It is a good idea to save the model's parameters at the end of the training, or also to do "check-points", as the training is long and may break for various reasons. We then initiate a new object with the same structure of the original model (using the same code), and load the parameters' matching values.</p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">model</span> <span class="o">=</span> <span class="n">Net</span><span class="p">()</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="o">...</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1"># Save the model&#39;s state_dict</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="s1">&#39;model_state_dict.pth&#39;</span><span class="p">)</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="o">...</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="c1"># Create a new instance of the model</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="n">model</span> <span class="o">=</span> <span class="n">Net</span><span class="p">()</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="c1"># Load the state dictionary</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;model_state_dict.pth&#39;</span><span class="p">))</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="o">...</span>
+</span></code></pre></div>
+<p>Saving models this way allows for some flexibility as we can later add a layer (and still load everything else), etc. If we change a name of a layer, we can load the dict, change the name, and then with <code>load_state_dict</code>.
+A lot of times the code for the model is given in a Python package, while when you initialize the model, the parameters shall be fetched from the cloud.</p>
+<p>Saving a model and then loading it makes a lot of sense in the cloud. The values are stored on a cloud storage. The code can be run with a serverless infrastructure. No too big initialization time for a model to be ready for usage is incured. The expensive and time consuming training of the model is decoupled from its deployment and usage.</p>
 
 
 
