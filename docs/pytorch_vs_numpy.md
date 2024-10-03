@@ -384,6 +384,38 @@ tensor([[[0, 1, 1, 0],
          [0, 3, 3, 0]]])
 ```
 
+## Boolean tensors as indicators and integer tensors as indices 
+
+There are times where it is useful to collect entries from one tensor using another tensor.
+
+``` py
+t1 = torch.tensor([1.1, 2, 3, 4, 5])
+
+t1[t1 != 2]
+```
+
+```
+tensor([1.1000, 3.0000, 4.0000, 5.0000])
+```
+
+Note that ```(t1 != 2).type()``` gives ```'torch.BoolTensor'``` and that ```(t1 != 2).shape``` is ```torch.Size([5])```.
+We used here indicators (what entries to take). The output contains only 4 entries as in the example (those are the entries that were True in the indicators tensor).
+
+Another way to access entries in a tensor is using indices.
+
+``` py
+t1[torch.tensor([0, 0, 0, 1, 1, 1, 1, 3])]
+```
+
+```
+tensor([1.1000, 1.1000, 1.1000, 2.0000, 2.0000, 2.0000, 2.0000, 4.0000])
+```
+
+Above the same index (0 and also 1), were used multiple times as needed. The output's length is matching the length of the indices.
+
+Both capability exist also with NumPy. It is nice that we have it also directly in PyTorch, as then we can continue our calculations without going back and forward to NumPy.
+In times those are indeed useful constructs (using indicators, or using indices). I gave only 1d examples at the moment this is what I think can work. If I find otherwise, I'll update here.
+
 ## Support for GPU
 
 Tensors can be allocated on the GPU's memory, if you have such. Relevant operations on the tensors will run there (on the GPU), often faster. Operations between tensors need to be done when both tensors are located on the same *device*. If you detect that you have a GPU, and you train a model, putting the parameters of the model on the GPU, the training and evaluation data, should also be at the time on the GPU. Data is often loaded from the disk into the main memory, and then mini-batches are copied to the GPU's memory, used for an iteration, and make space for the next mini-batches, that are waiting either in memory or still on the disk. NumPy as far as I know does not have support for GPU. There is another NumPy like package called Numba, that apparently does support GPU. I haven't played with Numba yet.

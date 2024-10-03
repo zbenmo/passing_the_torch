@@ -372,3 +372,35 @@ Loss: {loss.item():.4f}''')
 
 print("Training complete!")
 ```
+
+## Saving and loading a model
+
+It is a good idea to save the model's parameters at the end of the training, or also to do "check-points", as the training is long and may break for various reasons. We then initiate a new object with the same structure of the original model (using the same code), and load the parameters' matching values.
+
+``` py
+model = Net()
+model.train()
+
+...
+
+# Save the model's state_dict
+torch.save(model.state_dict(), 'model_state_dict.pth')
+
+...
+
+# Create a new instance of the model
+model = Net()
+
+# Load the state dictionary
+model.load_state_dict(torch.load('model_state_dict.pth'))
+
+model.eval()
+
+...
+
+```
+
+Saving models this way allows for some flexibility as we can later add a layer (and still load everything else), etc. If we change a name of a layer, we can load the dict, change the name, and then with ```load_state_dict```.
+A lot of times the code for the model is given in a Python package, while when you initialize the model, the parameters shall be fetched from the cloud.
+
+Saving a model and then loading it makes a lot of sense in the cloud. The values are stored on a cloud storage. The code can be run with a serverless infrastructure. No too big initialization time for a model to be ready for usage is incured. The expensive and time consuming training of the model is decoupled from its deployment and usage.
