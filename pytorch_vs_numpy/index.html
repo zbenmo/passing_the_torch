@@ -666,7 +666,7 @@ If we do need to save space, we can opt in to "in place" operations.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>tensor([ 0,  1,  2,  3,  4,  5,  6,  7, 88])
 </span></code></pre></div>
 <p>You may see in places the usage of <em>.view()</em> which is like <em>.reshape()</em> yet may fail when the memory is not continous.
-So if you want to make sure the memory is continous, use <em>.view()</em>, if you want it just to work, use <em>.reshape()</em>.</p>
+So if you want to assert the memory is continous, use <em>.view()</em>, if you want it just to work, use <em>.reshape()</em>.</p>
 <p>We've seen above element wise operations, for example when we've computed BMI. PyTorch, as does NumPy, supports also linear algebra style vector and higher-order tensors operations, such as multiplication.</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">tensor1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="n">tensor2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
@@ -718,54 +718,118 @@ we've used <em>.item()</em>.</p>
 </span><span id="__span-35-13"><a id="__codelineno-35-13" name="__codelineno-35-13" href="#__codelineno-35-13"></a>         [3, 0, 0, 3],
 </span><span id="__span-35-14"><a id="__codelineno-35-14" name="__codelineno-35-14" href="#__codelineno-35-14"></a>         [0, 3, 3, 0]]])
 </span></code></pre></div>
+<p>The following is adapted from <a href="https://www.youtube.com/watch?v=PaCmpygFfXo">The spelled-out intro to language modeling: building makemore</a>.</p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>tensor([[0, 1, 2],
+</span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>        [3, 4, 5],
+</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>        [6, 7, 8]])
+</span></code></pre></div>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></code></pre></div>
+<p><code>tensor(36)</code></p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>tensor([ 3, 12, 21])
+</span></code></pre></div>
+<p>Above each row is summed-up by itself and we get 3 values. We got a 1d tensor of size 3.
+The reason we summed-up every row was that we wanted to normalize per row so it shall sum-up to 1 (ex. a probability). Let's try:</p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="n">a</span> <span class="o">/</span> <span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>tensor([[0.0000, 0.0833, 0.0952],
+</span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>        [1.0000, 0.3333, 0.2381],
+</span><span id="__span-42-3"><a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>        [2.0000, 0.5833, 0.3810]])
+</span></code></pre></div>
+<p>Something does not seem to work. None of the rows above actually sum-up to 1. What is happening?<br />
+We have: 2d tensor of shape 3x3 and we divide it by 1d tensor of shape 3. The broadcasting aligns the right most 3, and "adds" 1 to the left of it. So we have 3x3 to divide by 1x3. The values of the divisor are then replicated conceptually 3 times one below the other. So we wind up with the first column divided by the sum of the first row, then the second column divided by the sum of the second row, etc. Apparently there is an easy solution, we just need to be aware of what we do and the rules of broadcasting.</p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="n">a</span> <span class="o">/</span> <span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>tensor([[0.0000, 0.3333, 0.6667],
+</span><span id="__span-44-2"><a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>        [0.2500, 0.3333, 0.4167],
+</span><span id="__span-44-3"><a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>        [0.2857, 0.3333, 0.3810]])
+</span></code></pre></div>
+<p>Above did work, as we had 3x3 divided by 3x1, and the replication was matching our intentions.</p>
 <h2 id="boolean-tensors-as-indicators-and-integer-tensors-as-indices">Boolean tensors as indicators and integer tensors as indices</h2>
 <p>There are times where it is useful to collect entries from one tensor using another tensor.</p>
-<div class="language-py highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">t1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
-</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>
-</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="n">t1</span><span class="p">[</span><span class="n">t1</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="n">t1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+</span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>
+</span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a><span class="n">t1</span><span class="p">[</span><span class="n">t1</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>tensor([1.1000, 3.0000, 4.0000, 5.0000])
+<div class="language-text highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>tensor([1.1000, 3.0000, 4.0000, 5.0000])
 </span></code></pre></div>
 <p>Note that <code>(t1 != 2).type()</code> gives <code>'torch.BoolTensor'</code> and that <code>(t1 != 2).shape</code> is <code>torch.Size([5])</code>.
 We used here indicators (what entries to take). The output contains only 4 entries as in the example (those are the entries that were True in the indicators tensor).</p>
 <p>Another way to access entries in a tensor is using indices.</p>
-<div class="language-py highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="n">t1</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])]</span>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="n">t1</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])]</span>
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>tensor([1.1000, 1.1000, 1.1000, 2.0000, 2.0000, 2.0000, 2.0000, 4.0000])
+<div class="language-text highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>tensor([1.1000, 1.1000, 1.1000, 2.0000, 2.0000, 2.0000, 2.0000, 4.0000])
 </span></code></pre></div>
 <p>Above the same index (0 and also 1), were used multiple times as needed. The output's length is matching the length of the indices.</p>
 <p>Both capability exist also with NumPy. It is nice that we have it also directly in PyTorch, as then we can continue our calculations without going back and forward to NumPy.
-In times those are indeed useful constructs (using indicators, or using indices). I gave only 1d examples at the moment this is what I think can work. If I find otherwise, I'll update here.</p>
+In times those are indeed useful constructs (using indicators, or using indices).</p>
+<p>I gave only 1d examples. What happens when we use 2d tensors or use higher dimension ones? Apparently there is a reasonable and useful semantic also here.</p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="kn">import</span> <span class="nn">torch</span>
+</span><span id="__span-49-2"><a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>
+</span><span id="__span-49-3"><a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span><span id="__span-49-4"><a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="n">a</span>
+</span></code></pre></div>
+<p><code>tensor([ 10,  20,  30,  40,  50,  60,  70,  80,  90, 100, 110, 120, 130, 140])</code></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>b = torch.triu(torch.arange(9).view(-1, 3))
+</span><span id="__span-50-2"><a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>b
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>tensor([[0, 1, 2],
+</span><span id="__span-51-2"><a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>        [0, 4, 5],
+</span><span id="__span-51-3"><a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>        [0, 0, 8]])
+</span></code></pre></div>
+<p>Above is upper triangular 2d tensor, where the values (in the upper triangle) came from the tensor 0, 1, .., and the other values are 0.</p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="n">a</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>tensor([[10, 20, 30],
+</span><span id="__span-53-2"><a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a>        [10, 50, 60],
+</span><span id="__span-53-3"><a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a>        [10, 10, 90]])
+</span></code></pre></div>
+<p>The shape of the output matches the shape of <code>b</code> while the values taken from <code>a</code> based on the relevant index.</p>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="n">ind</span> <span class="o">=</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span id="__span-54-2"><a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a><span class="n">ind</span>
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-55-1"><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>tensor([[ True, False,  True],
+</span><span id="__span-55-2"><a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>        [ True,  True, False],
+</span><span id="__span-55-3"><a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a>        [ True,  True,  True]])
+</span></code></pre></div>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-56-1"><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a><span class="n">b</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+</span></code></pre></div>
+<p><code>tensor([0, 2, 0, 4, 0, 0, 8])</code></p>
+<p>The count of results matches the count of True's in <code>ind</code>. The values are given as a 1d tensor.</p>
 <h2 id="support-for-gpu">Support for GPU</h2>
 <p>Tensors can be allocated on the GPU's memory, if you have such. Relevant operations on the tensors will run there (on the GPU), often faster. Operations between tensors need to be done when both tensors are located on the same <em>device</em>. If you detect that you have a GPU, and you train a model, putting the parameters of the model on the GPU, the training and evaluation data, should also be at the time on the GPU. Data is often loaded from the disk into the main memory, and then mini-batches are copied to the GPU's memory, used for an iteration, and make space for the next mini-batches, that are waiting either in memory or still on the disk. NumPy as far as I know does not have support for GPU. There is another NumPy like package called Numba, that apparently does support GPU. I haven't played with Numba yet.</p>
-<div class="language-py highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-57-1"><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>True
+<div class="language-text highlight"><pre><span></span><code><span id="__span-58-1"><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>True
 </span></code></pre></div>
 <p>Above was shown on <a href="https://colab.research.google.com/">Colab</a>. If like me you don't have GPU in your private environment, consider using Colab.</p>
-<div class="language-py highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="n">tensor1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="n">tensor1</span><span class="o">.</span><span class="n">device</span>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-59-1"><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a><span class="n">tensor1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span id="__span-59-2"><a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a><span class="n">tensor1</span><span class="o">.</span><span class="n">device</span>
 </span></code></pre></div>
 <p><code>device(type='cpu')</code></p>
-<div class="language-py highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="n">tensor1_cuda</span> <span class="o">=</span> <span class="n">tensor1</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
-</span><span id="__span-43-2"><a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="n">tensor1_cuda</span><span class="o">.</span><span class="n">device</span>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-60-1"><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a><span class="n">tensor1_cuda</span> <span class="o">=</span> <span class="n">tensor1</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+</span><span id="__span-60-2"><a id="__codelineno-60-2" name="__codelineno-60-2" href="#__codelineno-60-2"></a><span class="n">tensor1_cuda</span><span class="o">.</span><span class="n">device</span>
 </span></code></pre></div>
 <p><code>device(type='cuda', index=0)</code></p>
 <p>Just to iterate, operations between tensors that are located on different devices, are not supposed to work:</p>
-<div class="language-py highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="o">...</span>
-</span><span id="__span-44-2"><a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>
-</span><span id="__span-44-3"><a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="n">tensor1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span id="__span-44-4"><a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a><span class="n">tensor2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
-</span><span id="__span-44-5"><a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a><span class="n">tensor1</span> <span class="o">+</span> <span class="n">tensor2</span>
+<div class="language-py highlight"><pre><span></span><code><span id="__span-61-1"><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a><span class="o">...</span>
+</span><span id="__span-61-2"><a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a>
+</span><span id="__span-61-3"><a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a><span class="n">tensor1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span id="__span-61-4"><a id="__codelineno-61-4" name="__codelineno-61-4" href="#__codelineno-61-4"></a><span class="n">tensor2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+</span><span id="__span-61-5"><a id="__codelineno-61-5" name="__codelineno-61-5" href="#__codelineno-61-5"></a><span class="n">tensor1</span> <span class="o">+</span> <span class="n">tensor2</span>
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>---------------------------------------------------------------------------
-</span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>RuntimeError                              Traceback (most recent call last)
-</span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>&lt;ipython-input-2-5076b2d4339c&gt; in &lt;cell line: 3&gt;()
-</span><span id="__span-45-4"><a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>      1 tensor1 = torch.randn(3)
-</span><span id="__span-45-5"><a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a>      2 tensor2 = torch.randn(3).to(&quot;cuda&quot;)
-</span><span id="__span-45-6"><a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a>----&gt; 3 tensor1 + tensor2
-</span><span id="__span-45-7"><a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a>
-</span><span id="__span-45-8"><a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a>RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!
+<div class="language-text highlight"><pre><span></span><code><span id="__span-62-1"><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>---------------------------------------------------------------------------
+</span><span id="__span-62-2"><a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a>RuntimeError                              Traceback (most recent call last)
+</span><span id="__span-62-3"><a id="__codelineno-62-3" name="__codelineno-62-3" href="#__codelineno-62-3"></a>&lt;ipython-input-2-5076b2d4339c&gt; in &lt;cell line: 3&gt;()
+</span><span id="__span-62-4"><a id="__codelineno-62-4" name="__codelineno-62-4" href="#__codelineno-62-4"></a>      1 tensor1 = torch.randn(3)
+</span><span id="__span-62-5"><a id="__codelineno-62-5" name="__codelineno-62-5" href="#__codelineno-62-5"></a>      2 tensor2 = torch.randn(3).to(&quot;cuda&quot;)
+</span><span id="__span-62-6"><a id="__codelineno-62-6" name="__codelineno-62-6" href="#__codelineno-62-6"></a>----&gt; 3 tensor1 + tensor2
+</span><span id="__span-62-7"><a id="__codelineno-62-7" name="__codelineno-62-7" href="#__codelineno-62-7"></a>
+</span><span id="__span-62-8"><a id="__codelineno-62-8" name="__codelineno-62-8" href="#__codelineno-62-8"></a>RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!
 </span></code></pre></div>
 <p>If you do want to add as an example two tensors that are on different device, you need first to move one of them to the same device where the other is. Remember that the GPU is fast, while the CPU (the relevant memory) is potentially bigger, but also when needed, backed by even larger space transparently (the operating system's virtual memory and the disk). </p>
 <p>There is more to PyTorch of course, and also related to tensors. We'll talk about <em>auto grad</em> next.</p>
