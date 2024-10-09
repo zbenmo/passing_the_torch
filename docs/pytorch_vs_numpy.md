@@ -311,7 +311,7 @@ tensor([ 0,  1,  2,  3,  4,  5,  6,  7, 88])
 ```
 
 You may see in places the usage of *.view()* which is like *.reshape()* yet may fail when the memory is not continous.
-So if you want to make sure the memory is continous, use *.view()*, if you want it just to work, use *.reshape()*.
+So if you want to assert the memory is continous, use *.view()*, if you want it just to work, use *.reshape()*.
 
 We've seen above element wise operations, for example when we've computed BMI. PyTorch, as does NumPy, supports also linear algebra style vector and higher-order tensors operations, such as multiplication.
 
@@ -384,6 +384,60 @@ tensor([[[0, 1, 1, 0],
          [0, 3, 3, 0]]])
 ```
 
+The following is adapted from [The spelled-out intro to language modeling: building makemore](https://www.youtube.com/watch?v=PaCmpygFfXo).
+
+``` py
+a = torch.arange(9).view(-1 , 3)
+```
+
+```
+tensor([[0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8]])
+```
+
+``` py
+a.sum()
+```
+
+```tensor(36)```
+
+``` py
+a.sum(axis=1)
+```
+
+```
+tensor([ 3, 12, 21])
+```
+
+Above each row is summed-up by itself and we get 3 values. We got a 1d tensor of size 3.
+The reason we summed-up every row was that we wanted to normalize per row so it shall sum-up to 1 (ex. a probability). Let's try:
+
+``` py
+a / a.sum(axis=1)
+```
+
+```
+tensor([[0.0000, 0.0833, 0.0952],
+        [1.0000, 0.3333, 0.2381],
+        [2.0000, 0.5833, 0.3810]])
+```
+
+Something does not seem to work. None of the rows above actually sum-up to 1. What is happening?  
+We have: 2d tensor of shape 3x3 and we divide it by 1d tensor of shape 3. The broadcasting aligns the right most 3, and "adds" 1 to the left of it. So we have 3x3 to divide by 1x3. The values of the divisor are then replicated conceptually 3 times one below the other. So we wind up with the first column divided by the sum of the first row, then the second column divided by the sum of the second row, etc. Apparently there is an easy solution, we just need to be aware of what we do and the rules of broadcasting.
+
+``` py
+a / a.sum(axis=1,keepdim=True)
+```
+
+```
+tensor([[0.0000, 0.3333, 0.6667],
+        [0.2500, 0.3333, 0.4167],
+        [0.2857, 0.3333, 0.3810]])
+```
+
+Above did work, as we had 3x3 divided by 3x1, and the replication was matching our intentions.
+
 ## Boolean tensors as indicators and integer tensors as indices 
 
 There are times where it is useful to collect entries from one tensor using another tensor.
@@ -414,7 +468,62 @@ tensor([1.1000, 1.1000, 1.1000, 2.0000, 2.0000, 2.0000, 2.0000, 4.0000])
 Above the same index (0 and also 1), were used multiple times as needed. The output's length is matching the length of the indices.
 
 Both capability exist also with NumPy. It is nice that we have it also directly in PyTorch, as then we can continue our calculations without going back and forward to NumPy.
-In times those are indeed useful constructs (using indicators, or using indices). I gave only 1d examples at the moment this is what I think can work. If I find otherwise, I'll update here.
+In times those are indeed useful constructs (using indicators, or using indices).
+
+I gave only 1d examples. What happens when we use 2d tensors or use higher dimension ones? Apparently there is a reasonable and useful semantic also here.
+
+``` py
+import torch
+
+a = torch.arange(10, 150, step=10)
+a
+```
+
+```tensor([ 10,  20,  30,  40,  50,  60,  70,  80,  90, 100, 110, 120, 130, 140])```
+
+```
+b = torch.triu(torch.arange(9).view(-1, 3))
+b
+```
+
+```
+tensor([[0, 1, 2],
+        [0, 4, 5],
+        [0, 0, 8]])
+```
+
+Above is upper triangular 2d tensor, where the values (in the upper triangle) came from the tensor 0, 1, .., and the other values are 0.
+
+``` py
+a[b]
+```
+
+```
+tensor([[10, 20, 30],
+        [10, 50, 60],
+        [10, 10, 90]])
+```
+
+The shape of the output matches the shape of ```b``` while the values taken from ```a``` based on the relevant index.
+
+``` py
+ind = b % 2 == 0
+ind
+```
+
+```
+tensor([[ True, False,  True],
+        [ True,  True, False],
+        [ True,  True,  True]])
+```
+
+``` py
+b[ind]
+```
+
+```tensor([0, 2, 0, 4, 0, 0, 8])```
+
+The count of results matches the count of True's in ```ind```. The values are given as a 1d tensor.
 
 ## Support for GPU
 

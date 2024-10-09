@@ -1,6 +1,6 @@
 # Embeddings
 
-In my mind embeddings are just a synonym to features. For example, if we had:
+In my mind embeddings are just a synonym for features. For example, if we had:
 
 ``` py
 linear = nn.Linear(in_features=5, out_features=10)
@@ -26,7 +26,8 @@ The five numbers, in the example above, can be, for example the following featur
 
 Usually embeddings are a way to represent high-dimensional data in a lower-dimensional space, so not from 5 numbers to 10, but rather, as an example, from an image of 800 x 600 x 3 integer values to say 128 float numbers (so not just flatening the image into a long vector but more than that). Another example is taking variable length text (for example 1,000-2,000 characters), and returning 100 float numbers. Also representing categorical values, such as country name. So instead of country name, there will be say 4 float numbers.  
 We could have also use one-hot-encoding in the example of the country name, meaning 1 for the relevant entry, and 0 everywhere else. Going even a step backwards, we could have just represent each country name by a unique number.  
-What is the benefit of a float, dense, representation (as opposed to the one-hot-encoding sparsity)? With dense representation we can commit to a fix length vector. Also operations down the line, will be anyway with floats (for example the linear layer above). With dense vector, the representation is "distributed" among the entries. We should get some robustness to small changes in the values and we should get generality. The representation can and should be somewhat meaningful for the relevant task down the line. Making out of inputs of various shapes and nature, a vector of float numbers, is also refered as *vectorization*. Vectorization is then also the speed-up gained by operating on multiple entries at the same time using tensors operations, with the relevant linear-algebra packages / built-in support, we use.
+What is the benefit of a float, dense, representation (as opposed to the one-hot-encoding sparsity)? With dense representation we can commit to a fix length vector. Also operations down the line, will be anyway with floats (for example the linear layer above). With dense vector, the representation is "distributed" among the entries. We should get some robustness to small changes in the values and we should get generality. The representation can and should be somewhat meaningful for the relevant task down the line.  
+Making out of inputs of various shapes and nature, a vector of float numbers, is also refered as *vectorization*. Vectorization is then also the speed-up gained by operating on multiple entries at the same time using tensors operations, with the relevant linear-algebra packages / built-in support, we use.
 
 ## Embedding as the outputs of "before last" layer
 
@@ -352,6 +353,17 @@ tensor([[0, 1, 0],
         [1, 0, 0],
         [0, 0, 1]])
 ```
+
+```
+import matplotlib.pyplot as plt
+
+plt.imshow(one_hot)
+```
+
+<figure style="width:30%">
+    <img src="../images/one_hot_encoding.png" title="One-Hot-Encoding"/>
+    <figcaption>One-Hot-Encoding</figcaption>
+</figure>
 
 Now look at the following and imagine that, we can train this model for a few iterations on our task, and get useful embeddings mapping from indices, that shall enable the learning of the task.
 
